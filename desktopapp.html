@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>desktop Notification - Sql</title>
+	<script
+  src="https://code.jquery.com/jquery-3.1.1.min.js"
+  integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+  crossorigin="anonymous"></script>
+</head>
+<body>
+
+<a href='#' id="dnperm">Reuqest Permission</a><br />
+<a href='#' id="dntrigger">Trigger</a><br />
+
+<a href="#" id="insertRow">Insert Row</a><br />
+
+<script type="text/javascript">
+	var dnperm = document.getElementById('dnperm');
+	var dntrigger = document.getElementById('dntrigger');
+	var sqlData = null;
+
+	dnperm.addEventListener('click',function(e){
+		e.preventDefault();
+		if(!window.Notification){
+			alert('Not supported');
+		}else{
+			Notification.requestPermission().then(function(p){
+				if(p=='denied'){
+					alert('You denied to show notification');
+				}else if(p=='granted'){
+					alert('You allowed to show notification');
+				}
+			});
+		}
+	});
+
+	dntrigger.addEventListener('click', function(e){
+		e.preventDefault();
+		if(Notification.permission!=='default'){
+			$.get('/html5api/webapiget.php',function(data){
+				sqlData = JSON.parse(data);
+				for(var i=0;i<sqlData.length;i++){
+					var notify;
+					
+						notify= new Notification('New message - '+sqlData[i].id,{
+							'body': sqlData[i].value,
+							'icon': 'images.jpeg',
+							'tag': sqlData[i].id
+						});
+
+						notify.onclick = function(){
+							alert(this.tag);
+						}
+				}
+			});	
+
+		}else{
+			alert('Please allow the notification first');
+		}	
+		
+	});
+
+	$('#insertRow').click(function(e){
+		e.preventDefault();
+		$.get('/html5api/webapipost.php',function(data){
+			alert(data);
+		});
+	});
+</script>
+</body>
+</html>
